@@ -4,6 +4,8 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score
+import geopandas as gpd
+from shapely.geometry import Point
 
 class AirbnbData():
     def __init__(self, filename, colsOfInterest=None):
@@ -50,7 +52,6 @@ class AirbnbData():
         self.df['service fee'] = self.df['service fee'].apply(clean_value)
 
         self.df = pd.get_dummies(self.df, columns=['room type'])
-        print(self.df.head())
 
     def getdf(self):
         if self.df is None:
@@ -124,6 +125,33 @@ class AirbnbData():
 
         return rSquared
 
+    def entriesPerCounty(self, file, lat_col='lat', long_col='long'):
+        if self.df is None:
+            raise Exception(f"Dataframe is empty! Load a datafile and run preprocess() first")
+
+        if lat_col not in self.df.columns or long_col not in self.df.columns:
+            raise ValueError(f"Columns '{lat_col}' and/or '{long_col}' not found in the DataFrame.")
+
+        try:
+            counties = gpd.read_file(file)
+        except Exception as e:
+            raise Exception(e)
+
+        # Filter for New York state (if the shapefile contains data for multiple states)
+        if 'STATEFP' in counties.columns:  # STATEFP is the state FIPS code
+            counties = counties[counties['STATEFP'] == '36']  # 36 is the FIPS code for New York
+        elif 'STATE_NAME' in counties.columns:
+            counties = counties[counties['STATE_NAME'] == 'New York']
+
+        geometry = [Point(xy) for xy in zip(self.df[long_col], self.df[lat_col])]
+        gdf = gpd.GeoDataFrame(self.df, geometry=geometry, crs='EPSG:4326')  # WGS84 coordinate system
+
+        joined = gpd.sjoin(gdf, counties, how='left', predicate='within')
+
+        county_counts = joined['name'].value_counts()
+
+        return county_counts
+
 def test():
     data = AirbnbData("data.csv")
 
@@ -136,6 +164,8 @@ def test():
     data.rSquared("lat", "price")
 
     data.pca()
+
+    print(data.entriesPerCounty("new-york-counties.geojson"))
 
 if __name__ == "__main__":
     test()
