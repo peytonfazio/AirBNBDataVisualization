@@ -5,7 +5,9 @@ This is a data visualization made for the business track of the ["Kent Hack Enou
 ## Credits
 
 Amber Martino - Front-End
+
 Eva Powlison - Data Back-End
+
 Peyton Fazio - Front-End
 
 ## Usage
