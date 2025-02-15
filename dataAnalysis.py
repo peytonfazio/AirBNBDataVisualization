@@ -150,6 +150,8 @@ class AirbnbData():
 
         county_counts = joined['name'].value_counts()
 
+        self.df['county'] = joined['name']
+
         return county_counts
 
 def test():
