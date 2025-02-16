@@ -82,10 +82,11 @@ class AirbnbData():
         if self.df is None:
             raise Exception(f"Dataframe is empty! Load a datafile and run preprocess() first")
 
-        data = self.df[['lat', 'long']]
-
         if county is not None:
-            data = data[data['county'] == county]
+            data = self.df[self.df['county'] == county]
+            data = data[['lat', 'long']]
+        else:
+            data = self.df[['lat', 'long']]
 
         kmeans = KMeans(n_clusters=n_clusters, random_state=42)
         kmeans.fit(data)
