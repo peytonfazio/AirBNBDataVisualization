@@ -1,9 +1,12 @@
 import plotly.express as px
+import ast
 import pandas as pd
 from dataAnalysis import AirbnbData
 import streamlit as st
 import geopandas as gpd
 import folium
+import matplotlib.pyplot as plt
+import seaborn as sns
 from folium.plugins import HeatMap
 from streamlit_folium import folium_static
 
@@ -55,8 +58,6 @@ def create_heatmap(counties):
             dragging=False,
         )
 
-    # Add the choropleth layer (heatmap)
-
 
     folium.GeoJson(
     counties,  # GeoJSON data
@@ -69,6 +70,7 @@ def create_heatmap(counties):
     },
     tooltip=folium.GeoJsonTooltip(fields=["name"], aliases=["County:"])  # Tooltip for counties
     ).add_to(m)
+    
     
     heat_data = df[['lat', 'long', mapWeight]].values.tolist()
     HeatMap(data=heat_data, radius=12).add_to(m)
@@ -83,11 +85,24 @@ with left:
     counties = load_data()
 
     # Create the heatmap
-    st.write("Generating heatmap...")
+    #st.write("Generating heatmap...")
     heatmap = create_heatmap(counties)
 
     # Display the map in Streamlit
     folium_static(heatmap, width = 625)
+    
+    # Caching PCA Results for demo purposes, takes too long to compute
+
+    st.write("Note: PCA may take a long time to process on machines without GPUs") 
+    pcaPressed = st.button("Run Principle Component Analysis")
+
+    if pcaPressed == True:
+        pcaResults = air.pca(10)
+
+        figs = plt.figure(figsize=(8, 6))
+        sns.heatmap(pcaResults['pca_data'], annot=True, cmap="coolwarm", center=0)
+        plt.title("PCA Loadings Heatmap")
+        st.pyplot(figs) 
 
 
 def IQRBounds(x, df):
@@ -103,7 +118,7 @@ def IQRBounds(x, df):
     return lowerBound, upperBound
 
 with right:
-    st.title("AirBNB Linear and Parallel Graph")
+    st.title("Parallel Coordinate Graph")
 
 
 # County Fiddle
@@ -174,6 +189,8 @@ vertDisplay = st.sidebar.selectbox(
 )
 
 with right:
+    st.header("Scatter Graph (" + horzDisplay + ", " + vertDisplay + ")")
+
     sample = st.slider(
     "Sample Size:",  # Label for the slider
     min_value=1,  # Minimum value
@@ -199,9 +216,9 @@ lineFig = px.scatter(
 
 # Line Chart Graph
 with right:
-    st.header("Line Chart (" + horzDisplay + ", " + vertDisplay + ")")
     rsquare = air.rSquared(horzDisplay, vertDisplay)
     st.write("R Squared: " + str(rsquare))
+    st.write("Correlation based on R Squared:")
     if rsquare < 0.5:
         st.write("No correlation")
     else:
@@ -214,4 +231,4 @@ with right:
 #    st.write("r squared " + rSquared(horzDisplay, vertDisplay))
 
 
-st.sidebar.text("Air-o-lyze is a data analysis tool for deriving insights from Airbnb data.\nView groupings of rentals using the heatmap overlay.\nIdentify clusters of data and the particular trends within each cluster using the parallel coordinates chart on the right.\nBelow the parallel coordinates chart, you can find an adjustable linear regression chart. Select the axes using the drop-down menus on the left hand side.")
+st.sidebar.text("Air-o-lyze is a data analysis tool for deriving insights from Airbnb data.\n\nView groupings of rentals using the heatmap overlay.\n\nIdentify clusters of data and the particular trends within each cluster using the parallel coordinates chart on the right.\n\nBelow the parallel coordinates chart, you can find an adjustable linear regression chart. Select the axes using the drop-down menus on the left hand side.")

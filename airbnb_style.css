@@ -64,15 +64,11 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 0 5px rgba(255, 90, 95, 0.5) !important; /* Coral red glow */
 }
 
-.stText pre {
-    color: #FF5A5F !important; /* Coral red text color */
+.stText, .st-emotion-cache-2qp9ou {
+    color: #FFFFFF !important; /* Coral red text color */
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important; /* Modern font */
     font-size: 16px !important; /* Font size */
     font-weight: bold !important; /* Bold text */
-    background-color: #FFFFFF !important; /* White background */
-    padding: 10px !important; /* Add some padding */
-    border-radius: 8px !important; /* Rounded corners */
-    border: 2px solid #FF5A5F !important; /* Coral red border */
 }
 /* Tables */
 .stDataFrame {

@@ -100,7 +100,10 @@ class AirbnbData():
             raise Exception(f"Dataframe is empty! Load a datafile and run preprocess() first")
     
         scaler = StandardScaler()
-        scaled_data = scaler.fit_transform(self.df)
+        data = pd.DataFrame()
+        data = self.df.copy(deep=True)
+        data = data.drop(columns=['county'])
+        scaled_data = scaler.fit_transform(data)
 
         pca = PCA(n_components=n_components)
         pca_data = pca.fit_transform(scaled_data)
