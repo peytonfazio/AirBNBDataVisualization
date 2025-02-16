@@ -1,7 +1,94 @@
-import streamlit as st
 import plotly.express as px
 import pandas as pd
 from dataAnalysis import AirbnbData
+import streamlit as st
+import geopandas as gpd
+import folium
+from folium.plugins import HeatMap
+from streamlit_folium import folium_static
+
+st.set_page_config(layout="wide")
+
+def load_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+load_css("airbnb_style.css")
+
+air = AirbnbData("Airbnb_Open_Data.csv")
+air.preprocess()
+air.entriesPerCounty("new-york-counties.geojson")
+df = air.getdf()
+
+left, right = st.columns(2, gap="large")
+
+
+# Function to load geographical data and population data
+def load_data():
+    # Load a GeoJSON file with county boundaries (replace with your file)
+    counties = gpd.read_file("geoJsonData/new-york-counties.geojson")
+    # Add population data to the GeoDataFrame
+    return counties
+
+# Logo
+
+st.sidebar.image("air-o-lyze-logo.png")
+
+
+
+fields = ['lat', 'long', 'Construction year', 'price', 'service fee', 'minimum nights', 'reviews per month', 'availability 365']
+mapField = ['Construction year', 'price', 'service fee', 'minimum nights', 'reviews per month', 'availability 365']
+
+mapWeight = st.sidebar.selectbox(
+        "Select a field for the heatmap to use as a weight: ",
+        mapField,
+        )
+
+
+# Function to create a Folium map with a heatmap overlay
+def create_heatmap(counties):
+    # Create a Folium map centered on New York
+    m = folium.Map(
+            location=[40.7128, -74.0060], 
+            zoom_start=10,
+            zoom_control=False,
+            dragging=False,
+        )
+
+    # Add the choropleth layer (heatmap)
+
+
+    folium.GeoJson(
+    counties,  # GeoJSON data
+    name="New York Counties",  # Layer name
+    style_function=lambda feature: {
+        "fillColor": "white",  # Fill color for counties
+        "color": "black",  # Border color
+        "weight": 1,  # Border width
+        "fillOpacity": 0,  # Fill opacity
+    },
+    tooltip=folium.GeoJsonTooltip(fields=["name"], aliases=["County:"])  # Tooltip for counties
+    ).add_to(m)
+    
+    heat_data = df[['lat', 'long', mapWeight]].values.tolist()
+    HeatMap(data=heat_data, radius=12).add_to(m)
+
+    return m
+
+with left:
+    # Streamlit app
+    st.title("Population Heatmap by County")
+
+    # Load the data
+    counties = load_data()
+
+    # Create the heatmap
+    st.write("Generating heatmap...")
+    heatmap = create_heatmap(counties)
+
+    # Display the map in Streamlit
+    folium_static(heatmap, width = 625)
+
 
 def IQRBounds(x, df):
     # Calculate IQR
@@ -15,31 +102,31 @@ def IQRBounds(x, df):
 
     return lowerBound, upperBound
 
+with right:
+    st.title("AirBNB Linear and Parallel Graph")
 
-st.title("AirBNB Linear and Parallel Graph")
-air = AirbnbData("Airbnb_Open_Data.csv")
-air.preprocess()
-air.entriesPerCounty("new-york-counties.geojson")
-df = air.getdf()
 
 # County Fiddle
 countySet = list(set(df["county"]))
+countySet.remove(countySet[0])
+
+
 county = st.sidebar.selectbox(
-    "Select county to focus on:",
-    countySet
-)
+        "Select county to focus on:",
+        countySet
+        )
 
 countyRows = df[df['county'] == county]
 
 # Parallel Code
-
-nClusters = st.slider(
-    "Number of Clusters:",  # Label for the slider
-    min_value=1,  # Minimum value
-    max_value=10,  # Maximum value
-    value=4,  # Default value
-    step=1  # Step size (optional)
-)
+with right:
+    nClusters = st.slider(
+        "Number of Clusters:",  # Label for the slider
+        min_value=1,  # Minimum value
+        max_value=10,  # Maximum value
+        value=4,  # Default value
+        step=1  # Step size (optional)
+    )
 
 labels, centroids = air.cluster(nClusters, county)
 
@@ -60,7 +147,8 @@ fig = px.parallel_coordinates(
         color_continuous_scale=px.colors.diverging.Tealrose,
 )
 
-st.plotly_chart(fig)
+with right:
+    st.plotly_chart(fig)
 
 
 
@@ -69,7 +157,8 @@ st.plotly_chart(fig)
 
 #countySet.remove("nan")
 
-fields = ['lat', 'long', 'Construction year', 'price', 'service fee', 'minimum nights', 'reviews per month', 'availability 365']
+
+
 
 horzDisplay = st.sidebar.selectbox(
     "Select field for horizontal axis to display:",
@@ -77,13 +166,15 @@ horzDisplay = st.sidebar.selectbox(
     index=3
 )
 
+
 vertDisplay = st.sidebar.selectbox(
     "Select field for vertical axis to display:",
     fields,
     index=5
 )
 
-sample = st.slider(
+with right:
+    sample = st.slider(
     "Sample Size:",  # Label for the slider
     min_value=1,  # Minimum value
     max_value= min(len(countyRows), 500),  # Maximum value
@@ -91,7 +182,7 @@ sample = st.slider(
     step=1  # Step size (optional)
 )
 
-st.write(county + " has " + str(len(countyRows)) + " rows")
+    st.write(county + " has " + str(len(countyRows)) + " rows")
 dfcountysample = countyRows.sample(n=sample, random_state=42)
 
 
@@ -106,21 +197,8 @@ lineFig = px.scatter(
     render_mode='svg'
 )
 
-# Parallel coordinates graph
-#st.header("Parallel Coordinates")
-#fig = px.parallel_coordinates(
-#    df,
-#    dimensions=df.columns,  # Columns
-#    color='price',  # Color by Column
-#    color_continuous_scale=px.colors.diverging.Tealrose,  # Color scale
-#    labels={'price': 'price', 'bedrooms' : 'bedrooms', 'availability' : 'availability'}
-#)
-
-#st.plotly_chart(fig)
-
 # Line Chart Graph
-
-with st.container():
+with right:
     st.header("Line Chart (" + horzDisplay + ", " + vertDisplay + ")")
     rsquare = air.rSquared(horzDisplay, vertDisplay)
     st.write("R Squared: " + str(rsquare))
@@ -135,3 +213,5 @@ with st.container():
 #with col2:
 #    st.write("r squared " + rSquared(horzDisplay, vertDisplay))
 
+
+st.sidebar.text("Air-o-lyze is a data analysis tool for deriving insights from Airbnb data.\nView groupings of rentals using the heatmap overlay.\nIdentify clusters of data and the particular trends within each cluster using the parallel coordinates chart on the right.\nBelow the parallel coordinates chart, you can find an adjustable linear regression chart. Select the axes using the drop-down menus on the left hand side.")
