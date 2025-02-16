@@ -1,5 +1,7 @@
 # AirBNBDataVisualization
 
+![example](https://github.com/user-attachments/assets/9b42a570-077a-4a3c-9ca3-f543546a3acd)
+
 This is a data visualization made for the business track of the ["Kent Hack Enough" 2025 Hackathon](https://khe.io/). It takes in data from the [Airbnb Open Dataset](https://www.kaggle.com/datasets/arianazmoudeh/airbnbopendata/data) and provides analytics to help users understand the data better.
 
 ## Credits
@@ -12,7 +14,7 @@ Peyton Fazio - Front-End
 
 ## Usage
 
-Use the New York state heatmap to find the density of Airbnb rentals in each county. Select a different color palette if the default red-green heatmap is not preferable (this feature was included for the sake of color blind users).
+Use the New York state heatmap to find the density of Airbnb rentals in each county. 
 
 Select a county to view additional information.
 
