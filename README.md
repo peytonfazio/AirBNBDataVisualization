@@ -21,3 +21,19 @@ Select a county to view additional information.
 The parallel coordinates plot provides insights into clusters of data. Each distinct cluster is colored differently. Each thread in the plot represents a different point of data. 
 
 Select two axes of data to view a linear regression chart and associated coefficient of regression. 
+
+## Installation 
+
+1. Clone this repository and change directory into it.
+
+```git clone https://github.com/peytonfazio/AirBNBDataVisualization.git && cd AirBNBDataVisualization```
+
+2. Create a new Python virtual environment.
+
+  ```python -m venv.```
+
+3. [Download the dataset](https://www.kaggle.com/datasets/arianazmoudeh/airbnbopendata/data) and place it into the same directory.
+
+4. Run the code.
+
+  ```streamlit run streamlit_graph.py```
