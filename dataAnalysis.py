@@ -78,11 +78,14 @@ class AirbnbData():
         return clusterRange, inertiaValues
 
     # Find clusters using KMeans clustering 
-    def cluster(self, n_clusters):
+    def cluster(self, n_clusters, county=None):
         if self.df is None:
             raise Exception(f"Dataframe is empty! Load a datafile and run preprocess() first")
 
         data = self.df[['lat', 'long']]
+
+        if county is not None:
+            data = data[data['county'] == county]
 
         kmeans = KMeans(n_clusters=n_clusters, random_state=42)
         kmeans.fit(data)
