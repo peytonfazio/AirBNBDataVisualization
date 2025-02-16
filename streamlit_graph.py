@@ -1,6 +1,7 @@
 import plotly.express as px
 import ast
 import pandas as pd
+import numpy as np
 from dataAnalysis import AirbnbData
 import streamlit as st
 import geopandas as gpd
@@ -93,17 +94,24 @@ with left:
     
     # Caching PCA Results for demo purposes, takes too long to compute
 
-    st.write("Note: PCA may take a long time to process on machines without GPUs") 
-    pcaPressed = st.button("Run Principle Component Analysis")
+    #st.write("Note: PCA may take a long time to process on machines without GPUs") 
+    #pcaPressed = st.button("Run Principle Component Analysis")
 
-    if pcaPressed == True:
-        pcaResults = air.pca(10)
+    #if pcaPressed == True:
+    #    pca_results = air.pca(10)
+    #    pca_loadings = pca_results['pca_data']
 
-        figs = plt.figure(figsize=(8, 6))
-        sns.heatmap(pcaResults['pca_data'], annot=True, cmap="coolwarm", center=0)
-        plt.title("PCA Loadings Heatmap")
-        st.pyplot(figs) 
+    #    plt.figure(figsize=(8, 6))
+    #    plt.imshow(pca_loadings, cmap="coolwarm", aspect="auto", vmin=-1, vmax=1)
 
+        # Add labels and title
+    #    plt.xticks(np.arange(pca_loadings.shape[1]), [f"PC{i+1}" for i in range(pca_loadings.shape[1])])
+    #    plt.yticks(np.arange(pca_loadings.shape[0]), [f"Feature {i+1}" for i in range(pca_loadings.shape[0])])
+    #    plt.xlabel("Principal Components")
+    #    plt.ylabel("Features")
+    #    plt.title("PCA Loadings Matrix")
+    #    plt.colorbar(label="Loading Value")
+    #    plt.show()
 
 def IQRBounds(x, df):
     # Calculate IQR
@@ -123,7 +131,7 @@ with right:
 
 # County Fiddle
 countySet = list(set(df["county"]))
-countySet.remove(countySet[0])
+#countySet.remove("nan")
 
 
 county = st.sidebar.selectbox(
