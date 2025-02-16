@@ -1,27 +1,20 @@
 import streamlit as st
 import geopandas as gpd
 import folium
-import requests
+from folium.plugins import HeatMap
+from dataAnalysis import AirbnbData
 from streamlit_folium import folium_static
+
+air = AirbnbData("Airbnb_Open_Data.csv")
+air.preprocess()
+air.entriesPerCounty("geoJsonData/new-york-counties.geojson")
+df = air.getdf()
 
 # Function to load geographical data and population data
 def load_data():
     # Load a GeoJSON file with county boundaries (replace with your file)
     counties = gpd.read_file("geoJsonData/new-york-counties.geojson")
-
-    # Example population data (replace with your data)
-    population_data = {
-        "New York County, New York": 1664727,
-        "Kings County, New York": 2648452,
-        "Queens County, New York": 2405464,
-        "Bronx County, New York": 1471160,
-        "Richmond County, New York": 495747,
-        # Add more counties and population data as needed
-    }
-
     # Add population data to the GeoDataFrame
-    counties["population"] = counties["name"].map(population_data)
-
     return counties
 
 # Function to create a Folium map with a heatmap overlay
@@ -43,24 +36,10 @@ def create_heatmap(counties):
     },
     tooltip=folium.GeoJsonTooltip(fields=["name"], aliases=["County:"])  # Tooltip for counties
     ).add_to(m)
+    heatVal = 20
+    HeatMap(data=df[['lat', 'long', "Construction year"]].values.tolist(), radius=12).add_to(m)
 
     return m
-
-def checkClicks(clickTest):
-    click_data = st.session_state.get("click_data", None)
-    if click_data:
-        st.write(f"Clicked at: {click_data}")
-
-        # Send the click data to the Flask backend
-        response = requests.post("http://localhost:5000/process_click", json=click_data)
-        if response.status_code == 200:
-            st.write("Backend response:", response.json())
-        else:
-            st.write("Failed to send data to the backend.")
-    if clickTest:
-        if st.button("Simulate Click"):
-            st.session_state["click_data"] = {"lat": 40.7128, "lon": -74.0060}  # Example: NYC coordinates
-
 
 # Streamlit app
 def main():
@@ -75,8 +54,6 @@ def main():
 
     # Display the map in Streamlit
     folium_static(heatmap, width = 725)
-
-    checkClicks(True)
 
 if __name__ == "__main__":
     main()
