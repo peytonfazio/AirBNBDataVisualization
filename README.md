@@ -2,7 +2,7 @@
 
 ![example](https://github.com/user-attachments/assets/9b42a570-077a-4a3c-9ca3-f543546a3acd)
 
-This is a data visualization made for the business track of the ["Kent Hack Enough" 2025 Hackathon](https://khe.io/). It takes in data from the [Airbnb Open Dataset](https://www.kaggle.com/datasets/arianazmoudeh/airbnbopendata/data) and provides analytics to help users understand the data better.
+This is a data visualization dashboard which won the business track for the ["Kent Hack Enough" 2025 Hackathon](https://khe.io/). It takes in data from the [Airbnb Open Dataset](https://www.kaggle.com/datasets/arianazmoudeh/airbnbopendata/data) and provides analytics to help users understand the data better. View the devpost submission [here](https://devpost.com/software/air-o-lyze).
 
 ## Credits
 
