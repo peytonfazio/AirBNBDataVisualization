@@ -37,3 +37,7 @@ Select two axes of data to view a linear regression chart and associated coeffic
 4. Run the code.
 
   ```streamlit run streamlit_graph.py```
+
+## Demo
+
+[Watch a video demo here](https://youtu.be/zVYKilvuZas?si=k0bCvUsJhM8wmA_O)
